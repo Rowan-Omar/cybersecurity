@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Random Winner Selector</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1"></script>
+    <style>
+      body {
+        text-align: center;
+        font-family: Arial, sans-serif;
+        background-color: #008b8b;
+      }
+      h1 {
+        color: wheat;
+        font-size: 40px;
+      }
+      .matrix {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin: 50px auto;
+        /* width: 50%; */
+        padding: 0 50px;
+      }
+      .name {
+        padding: 15px;
+        background-color: #c3b091;
+        color: #003f66;
+        font-weight: bold;
+        border-radius: 5px;
+        width: 200px;
+      }
+      .winner {
+        background-color: brown !important;
+        color: wheat;
+      }
+      #countdown-container {
+        position: relative;
+        width: 160px;
+        height: 160px;
+        margin: 20px auto;
+      }
+      #countdown {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 50px;
+        font-weight: bold;
+        color: brown;
+      }
+      svg {
+        transform: rotate(-90deg);
+      }
+      #progress-circle {
+        stroke-linecap: round;
+        stroke-dasharray: 440;
+        stroke-dashoffset: 0;
+        transition: stroke-dashoffset 1s linear;
+      }
+      #winner-name {
+        font-size: 70px;
+        font-weight: bold;
+        color: brown;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>And The Winner...</h1>
+    <div id="countdown-container">
+      <svg width="160" height="160">
+        <circle
+          cx="80"
+          cy="80"
+          r="70"
+          stroke="gray"
+          stroke-width="10"
+          fill="none"
+        />
+        <circle
+          id="progress-circle"
+          cx="80"
+          cy="80"
+          r="70"
+          stroke="brown"
+          stroke-width="10"
+          fill="none"
+          stroke-dasharray="440"
+          stroke-dashoffset="0"
+        />
+      </svg>
+      <div id="countdown">10</div>
+    </div>
+    <div id="winner-name"></div>
+    <div class="matrix" id="matrix"></div>
+    <audio id="drumroll" src="drumroll.mp3"></audio>
+    <audio id="cheer" src="cheer.mp3"></audio>
+
+    <script>
+      let names = [
+        "Ali AbdElrahman abdalla",
+        "Sara AbdElrahman ",
+        "AbdElrahman AbdElrahman",
+        "Mona",
+        "Ahmed",
+        "Fatima",
+        "Hassan",
+        "Lina",
+        "Youssef",
+        "Rana",
+        "Samir",
+        "Hiba",
+        "Tarek",
+        "Nour",
+        "Khaled",
+        "Laila",
+        "Karim",
+        "Dina",
+        "Jamal",
+        "Zain",
+      ];
+      let matrixDiv = document.getElementById("matrix");
+      let countdownDiv = document.getElementById("countdown");
+      let progressCircle = document.getElementById("progress-circle");
+      let winnerDiv = document.getElementById("winner-name");
+
+      names.forEach((name) => {
+        let div = document.createElement("div");
+        div.classList.add("name");
+        div.textContent = name;
+        matrixDiv.appendChild(div);
+      });
+
+      function startSelection() {
+        let countdown = 10;
+        let drumroll = document.getElementById("drumroll");
+        let cheer = document.getElementById("cheer");
+        drumroll.play();
+        countdownDiv.textContent = countdown;
+
+        let countdownInterval = setInterval(() => {
+          countdown--;
+          countdownDiv.textContent = countdown;
+
+          let offset = (440 / 10) * (10 - countdown);
+          progressCircle.style.strokeDashoffset = offset;
+
+          if (countdown === 0) {
+            clearInterval(countdownInterval);
+          }
+        }, 1000);
+
+        let shuffleInterval = setInterval(() => {
+          let randomIndex = Math.floor(Math.random() * names.length);
+          document
+            .querySelectorAll(".name")
+            .forEach((el) => el.classList.remove("winner"));
+          document
+            .querySelectorAll(".name")
+            [randomIndex].classList.add("winner");
+        }, 200);
+
+        setTimeout(() => {
+          clearInterval(shuffleInterval);
+          drumroll.pause();
+          drumroll.currentTime = 0;
+          cheer.play();
+          confetti({ particleCount: 200, spread: 100 });
+          let finalWinner = document.querySelector(".winner").textContent;
+          document.getElementById("countdown-container").style.display = "none";
+          winnerDiv.textContent = `🎉 ${finalWinner} 🎉`;
+        }, 10000);
+      }
+
+      setTimeout(startSelection, 2000);
+    </script>
+  </body>
+</html>
